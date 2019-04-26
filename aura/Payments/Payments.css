@@ -1,0 +1,43 @@
+.THIS .slds-table:not(.slds-no-row-hover) tbody tr.is-child-row>td,
+.THIS .slds-table:not(.slds-no-row-hover) tbody tr.is-child-row>th,
+.THIS .slds-table:not(.slds-no-row-hover) tbody tr.is-child-row>td,
+.THIS .slds-table:not(.slds-no-row-hover) tbody tr.is-child-row>th {
+    background-color: rgb(246,250,250);
+}
+.THIS .slds-table:not(.slds-no-row-hover) tbody tr.is-child-row:hover>td,
+.THIS .slds-table:not(.slds-no-row-hover) tbody tr.is-child-row:hover>th,
+.THIS .slds-table:not(.slds-no-row-hover) tbody tr.is-child-row:focus>td,
+.THIS .slds-table:not(.slds-no-row-hover) tbody tr.is-child-row:focus>th {
+    background-color: rgb(241,244,248);
+    box-shadow: none;
+}
+
+.THIS .parent-name > span {
+    font-weight: bold;
+}
+
+.THIS .slds-datepicker.slds-dropdown {
+    max-width: 25rem;
+}
+
+.THIS td.no-label .slds-form-element label {
+    display: none;
+}
+
+.THIS .output-field-currency {
+	margin-top: 6px;
+	margin-left: 5px;
+}
+
+.THIS .output-field-data {
+	margin-top: 6px;
+	margin-left: 13px;
+}
+
+.THIS a.output-link {
+	color: #222;
+}
+
+.THIS a.output-link:hover {
+	color: rgb(0, 109, 204);
+}

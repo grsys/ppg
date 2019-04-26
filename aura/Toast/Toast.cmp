@@ -1,0 +1,68 @@
+<aura:component>
+    <aura:attribute name="message" type="String" default=""/>
+    <aura:attribute name="severity" type="String" default="confirm"/>
+    <aura:attribute name="isShowMessage" type="Boolean" default="false"/>
+
+    <aura:handler name="init" value="{!this}" action="{!c.init}" />
+
+    <aura:if isTrue="{!v.isShowMessage}">
+        <div class="slds-notify_container" style="">
+            <div
+                class="{!(v.severity == 'confirm') ? 'slds-notify slds-notify_toast slds-theme_success' : 'slds-notify slds-notify_toast slds-theme_error'}"
+                role="status"
+                >
+                <!-- slds-theme_success -->
+                <!-- slds-theme_warning -->
+                <!-- slds-theme_error -->
+                <div class="slds-grid">
+                    <span
+                        class="
+                            slds-icon_container
+                            slds-icon-utility-success
+                            slds-m-right_small
+                            slds-no-flex
+                            slds-align-top
+                            "
+                        >
+                        <lightning:icon
+                            iconName="utility:success"
+                            alternativeText="Success"
+                            size="small"
+                            variant="inverse"
+                            ></lightning:icon>
+                    </span>
+                    <div class="
+                        slds-notify__content
+                        toast__notify-content
+                        ">
+                        <h2 class="
+                            slds-text-heading_small
+                            toast__content-message
+                            ">
+                            {!v.message}
+                        </h2>
+                    </div>
+                </div>
+                <div class="slds-notify__close">
+                    <button
+                        class="
+                            slds-button
+                            slds-button_icon
+                            slds-button_icon-inverse
+                            "
+                        title="Close"
+                        onclick="{!c.closeMessage}"
+                        >
+                        <lightning:icon
+                            iconName="utility:close"
+                            alternativeText="Close"
+                            variant="inverse"
+                            size="small"
+                            ></lightning:icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </aura:if>
+</aura:component>

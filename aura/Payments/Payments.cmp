@@ -1,0 +1,424 @@
+<aura:component controller="PaymentsController">
+
+	<aura:attribute name="page" type="PaymentsController.SectionPage"/>
+	<aura:attribute name="projects" type="Project__c[]"/>
+	<aura:attribute name="pagination" type="Object"/>
+
+	<aura:attribute name="message" type="String" default=""/>
+	<aura:attribute name="severity" type="String" default=""/>
+	<aura:attribute name="isShowMessage" type="Boolean" default="false"/>
+
+	<aura:attribute name="loading" type="Boolean" default="false"/>
+	<aura:attribute name="searching" type="Boolean" default="false"/>
+	<aura:attribute name="isParentsCollapsed" type="Boolean" default="false"/>
+
+	<aura:handler name="init" value="{!this}" action="{!c.init}"/>
+
+	<div class="slds-is-relative" style="min-height:120px">
+		<aura:if isTrue="{!v.loading}">
+			<lightning:spinner variant="brand" alternativeText="Loading..."/>
+		</aura:if>
+
+		<aura:if isTrue="{!v.isShowMessage}">
+			<c:Toast severity="{!v.severity}" message="{!v.message}" isShowMessage="{!v.isShowMessage}"/>
+		</aura:if>
+
+		<!-- Header -->
+		<div class="
+			slds-page-header
+			slds-page-header_record-home
+			"
+		>
+			<div class="slds-page-header__row">
+				<div class="slds-page-header__col-title">
+					<div class="slds-col slds-has-flexi-truncate">
+						<h2 class="slds-text-heading--medium slds-truncate" title="Manage Project Payments" style="font-weight: 500;">
+							Manage Project Payments
+						</h2>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- / Header -->
+
+		<!-- Content -->
+		<div class="slds-p-horizontal_x-large">
+			<div class="
+					slds-grid
+					slds-grid_vertical-align-center
+					slds-grid_align-spread
+					slds-p-top_small
+					slds-p-bottom_small
+				"
+			>
+				<!-- Search -->
+				<lightning:input
+					aura:id="enter-search"
+					name="enter-search"
+					placeholder="Search"
+					isLoading="{!v.searching}"
+					type="search"
+					value="{!v.page.query}"
+					onchange="{!c.changeSearchText}"
+				/>
+				<!-- / Search -->
+			</div>
+			<table class="
+					slds-table
+					slds-table_bordered
+					slds-table_cell-buffer
+				"
+			>
+				<thead>
+					<tr class="slds-text-title_caps">
+						<th scope="col" class="slds-p-left_medium">
+							<lightning:layout horizontalAlign="spread" multipleRows="false">
+								<div class="
+										slds-shrink-none
+										slds-grow-none
+									"
+								>
+									<lightning:buttonIcon
+										name="-1"
+										iconName="{!v.isParentsCollapsed ? 'utility:chevronright' : 'utility:chevrondown'}"
+										alternativeText="{!v.isParentsCollapsed ? 'Expand all sections' : 'Collapse all sections'}"
+										variant="bare"
+										title="{!v.isParentsCollapsed ? 'Expand all sections' : 'Collapse all sections'}"
+										onclick="{!c.showHideChilds}"
+									/>
+								</div>
+								<div class="
+										slds-grid
+										slds-grow
+										slds-shrink
+										slds-m-left_small
+									"
+									data-value="Name"
+									style="cursor: pointer;"
+									onclick="{!c.setOrder}"
+								>
+									<div>Contact</div>
+									<aura:if isTrue="{!v.page.orderBy == 'Name ASC'}">
+										<lightning:buttonIcon
+											iconName="utility:jump_to_top"
+											alternativeText="Order By Contact Name Ascending"
+											variant="bare"
+											title="Order By Contact Name Ascending"
+										/>
+									</aura:if>
+									<aura:if isTrue="{!v.page.orderBy == 'Name DESC'}">
+										<lightning:buttonIcon
+											iconName="utility:jump_to_bottom"
+											alternativeText="Order By Contact Name Descending"
+											variant="bare"
+											title="Order By Contact Name Descending"
+										/>
+									</aura:if>
+								</div>
+							</lightning:layout>
+						</th>
+						<th scope="col" style="width: 30%;">
+							<div class="
+									slds-grid
+								"
+								data-value="Total_Payments__c"
+								style="cursor: pointer;"
+								onclick="{!c.setOrder}"
+							>
+								<div class="slds-truncate" title="Type">Payment Amount</div>
+								<aura:if isTrue="{!v.page.orderBy == 'Total_Payments__c ASC'}">
+									<lightning:buttonIcon
+										iconName="utility:jump_to_top"
+										alternativeText="Order By Total Payments Ascending"
+										variant="bare"
+										title="Order By Total Payments Ascending"
+									/>
+								</aura:if>
+								<aura:if isTrue="{!v.page.orderBy == 'Total_Payments__c DESC'}">
+									<lightning:buttonIcon
+										iconName="utility:jump_to_bottom"
+										alternativeText="Order By Total Payments Descending"
+										variant="bare"
+										title="Order By Total Payments Descending"
+									/>
+								</aura:if>
+							</div>
+						</th>
+						<th scope="col" style="width: 30%;">
+							<div class="
+									slds-grid
+								"
+								data-value="Last_Payment_Date__c"
+								style="cursor: pointer;"
+								onclick="{!c.setOrder}"
+							>
+								<div class="slds-truncate" title="Org Id">Payment Date</div>
+								<aura:if isTrue="{!v.page.orderBy == 'Last_Payment_Date__c ASC'}">
+									<lightning:buttonIcon
+										iconName="utility:jump_to_top"
+										alternativeText="Order By Last Payment Date Ascending"
+										variant="bare"
+										title="Order By Last Payment Date Ascending"
+									/>
+								</aura:if>
+								<aura:if isTrue="{!v.page.orderBy == 'Last_Payment_Date__c DESC'}">
+									<lightning:buttonIcon
+										iconName="utility:jump_to_bottom"
+										alternativeText="Order By Last Payment Date Descending"
+										variant="bare"
+										title="Order By Last Payment Date Descending"
+									/>
+								</aura:if>
+							</div>
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					<aura:iteration items="{!v.page.sections}" var="section" indexVar="ind">
+						<tr data-name="{!ind}">
+							<td>
+								<div class="slds-truncate">
+									<section class="slds-grid slds-grid_vertical-align-center">
+										<div>
+											<aura:if isTrue="{!section.payments.length > 0}">
+												<lightning:layout multipleRows="false" horizontalAlign="spread">
+													<lightning:layoutItem>
+														<lightning:buttonIcon
+															name="{!ind}"
+															iconName="{!section.collapsed ? 'utility:chevronright' : 'utility:chevrondown'}"
+															alternativeText="{!section.collapsed ? 'expand' : 'collapse'}"
+															variant="bare"
+															title="{!section.collapsed ? 'expand' : 'collapse'}"
+															onclick="{!c.showHideChilds}"
+														/>
+													</lightning:layoutItem>
+												</lightning:layout>
+											</aura:if>
+										</div>
+										<div class="
+												slds-grid
+												slds-grid_vertical-align-center
+												slds-grid_align-spread
+												slds-no-space
+												slds-grow
+											"
+										>
+											<div class="
+													slds-grow
+													parent-name
+													slds-m-left_x-small
+												"
+											>
+												<span class="slds-truncate" title="{!section.person.FirstName + ' ' + section.person.LastName}">
+													<a
+														href="{!'/' + section.person.Id}"
+														target="_blank"
+														class="output-link"
+													>{!section.person.FirstName + ' ' + section.person.LastName}</a>
+												</span>
+											</div>
+											<div class="
+													slds-m-left_small
+													slds-shrink-none
+												"
+											>
+												<lightning:buttonGroup>
+													<lightning:buttonIcon
+														iconName="utility:add"
+														variant="border-filled"
+														name="{!ind}"
+														onclick="{!c.addPayment}"
+														title="Add Payment"
+													/>
+												</lightning:buttonGroup>
+											</div>
+										</div>
+									</section>
+								</div>
+							</td>
+							<td>
+								<div class="
+										slds-grow
+										parent-name
+										output-field-currency
+									"
+								>
+									<span class="slds-truncate" title="Total Payments">
+										<ui:outputCurrency value="{!section.person.Total_Payments__c}"/>
+									</span>
+								</div>
+							</td>
+							<td>
+								<div class="
+										slds-grow
+										parent-name
+										output-field-data
+									"
+								>
+									<span class="slds-truncate" title="Last Payment Date">
+										<ui:outputDate value="{!section.person.Last_Payment_Date__c}"/>
+									</span>
+								</div>
+							</td>
+						</tr>
+						<aura:if isTrue="{!and(section.payments.length > 0, !section.collapsed)}">
+							<aura:iteration items="{!section.payments}" var="payment" indexVar="childInd">
+								<tr>
+									<td class="no-label">
+										<div class="
+												slds-grid
+												slds-grid_vertical-align-center
+												slds-grid_align-spread
+												slds-no-space
+												slds-grow
+											"
+										>
+											<aura:if isTrue="{!or(payment.edit != true, not(empty(payment.Id)))}">
+												<div class="slds-grow slds-p-left_large">
+													<span class="slds-truncate" title="Project">
+														<a
+															href="{!'/' + payment.Project__c}"
+															target="_blank"
+															class="output-link"
+														>{!payment.Project__r.Name}</a>
+													</span>
+												</div>
+											</aura:if>
+											<aura:if isTrue="{!and(payment.edit == true, empty(payment.Id))}">
+												<div class="slds-grow">
+													<lightning:select value="{!payment.Project__c}">
+														<option text="--Select Project--" value=""/>
+														<aura:iteration items="{!v.projects}" var="option">
+															<option text="{!option.Name}" value="{!option.Id}"/>
+														</aura:iteration>
+													</lightning:select>
+												</div>
+											</aura:if>
+											<div class="
+													slds-m-left_small
+													slds-shrink-none
+												"
+											>
+												<aura:if isTrue="{!payment.edit != true}">
+													<lightning:buttonGroup>
+														<lightning:buttonIcon
+															iconName="utility:edit"
+															variant="border-filled"
+															name="{!ind + '-' + childInd}"
+															onclick="{!c.editPayment}"
+															title="Edit"
+														/>
+														<lightning:buttonIcon
+															iconName="utility:delete"
+															variant="border-filled"
+															name="{!ind + '-' + childInd}"
+															onclick="{!c.deletePayment}"
+															title="Delete"
+														/>
+													</lightning:buttonGroup>
+												</aura:if>
+												<aura:if isTrue="{!payment.edit == true}">
+													<lightning:buttonGroup>
+														<lightning:buttonIcon
+															iconName="utility:check"
+															variant="brand"
+															name="{!ind + '-' + childInd}"
+															onclick="{!c.savePayment}"
+															title="Edit"
+														/>
+														<lightning:buttonIcon
+															iconName="utility:undo"
+															variant="border-filled"
+															name="{!ind + '-' + childInd}"
+															onclick="{!c.cancelEditPayment}"
+															title="Cancel"
+														/>
+													</lightning:buttonGroup>
+												</aura:if>
+											</div>
+										</div>
+									</td>
+									<td class="no-label">
+										<aura:if isTrue="{!payment.edit != true}">
+											<div class="output-field-currency">
+												<ui:outputCurrency value="{!payment.Payment_Amount__c}"/>
+											</div>
+										</aura:if>
+										<aura:if isTrue="{!payment.edit == true}">
+											<lightning:input
+												type="number"
+                                                formatter="currency"
+                                                step="0.01"
+												value="{!payment.Payment_Amount__c}"
+											/>
+										</aura:if>
+										
+									</td>
+									<td class="no-label">
+										<aura:if isTrue="{!payment.edit != true}">
+											<div class="output-field-data">
+												<ui:outputDate value="{!payment.Payment_Date__c}"/>
+											</div>
+										</aura:if>
+										<aura:if isTrue="{!payment.edit == true}">
+											<lightning:input
+												type="date"
+												value="{!payment.Payment_Date__c}"
+											/>
+										</aura:if>
+									</td>
+								</tr>
+							</aura:iteration>
+						</aura:if>
+					</aura:iteration>
+				</tbody>
+			</table>
+			<!-- Pagination -->
+			<aura:if isTrue="{!v.pagination.show}">
+				<div class="
+						slds-m-top_small
+						slds-grid
+						slds-grid_vertical-align-center
+						slds-grid_align-center
+					"
+				>
+					<lightning:button
+						label="Prev"
+						iconName="utility:chevronleft"
+						iconPosition="left"
+						variant="base"
+						class="slds-m-right_small"
+						name="-1"
+						onclick="{!c.setPage}"
+						disabled="{!!v.pagination.previous}"
+					/>
+					<div class="slds-grid">
+						<aura:iteration items="{!v.pagination.pages}" var="p">
+							<div class="slds-m-left_x-small">
+								<lightning:button
+									name="{!p.number}"
+									label="{!p.number}"
+									variant="{!if(p.active,'neutral','base')}"
+									onclick="{!c.setPage}"
+								/>
+							</div>
+						</aura:iteration>
+					</div>
+					<lightning:button
+						label="Next"
+						iconName="utility:chevronright"
+						iconPosition="right"
+						variant="base"
+						class="slds-m-left_small"
+						name="-2"
+						onclick="{!c.setPage}"
+						disabled="{!!v.pagination.next}"
+					/>
+				</div>
+			</aura:if>
+			<!-- / Pagination -->
+		</div>
+	</div>
+	<!-- / Content -->
+
+</aura:component>
